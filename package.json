@@ -1,0 +1,14 @@
+{
+  "name": "kimazon",
+  "version": "1.0.0",
+  "description": "kimazon app",
+  "main": "kimazonCustomer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "me",
+  "license": "ISC",
+  "dependencies": {
+    "console.table": "^0.8.0"
+  }
+}
