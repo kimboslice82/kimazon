@@ -1,6 +1,6 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
-require('console.table');
+require("console.table");
 
 var connection = mysql.createConnection({
   host: "localhost",
@@ -31,11 +31,49 @@ connection.query('SELECT * FROM products_table', function(err,res) {
 
 });
 
-function start(){
+function start() {
 
-  inquirer.prompt({
+  inquirer.prompt([
+  {
     name: "productId",
-    type: "item_id",
+    type: "input",
     message: "Select an item ID"
+  }, {
+      name: "customerQuantity",
+      type: "input",
+      message:"How many would you like to buy?"
+
+  }]).then(function(answer) {
+
+    var customerChoice = answer.productId;
+    var customerQuantity = answer.customerQuantity;
+    connection.query("SELECT price, department_name, stock_quantity FROM products_table WHERE ?", {item_id: customerChoice} , function(err, res) {
+      var price = res[0].price;
+      var quantity = res[0].stock_quantity;
+      var departmentName = res[0].department_name;
+        if (customerQuantity > quantity) {
+          console.log("------insufficient quantity------");
+        }
+        else {
+          var newStockQuantity = parseInt(quantity) - parseInt(customerQuantity);
+          var totalSales = parseInt(price) * parseInt(customerQuantity);
+            console.log("PURCHASE DETAILS | Total Cost: " +totalSales + "\n  Number of Items Purchased: " + customerQuantity+"\n\n");
+            connection.query('UPDATE departments SET ? WHERE ?',[
+                    {
+                          total_sales: totalSales
+                    },{
+                                department_name: departmentName
+                            }],
+                            function(err,res) {return});
+                        connection.query('UPDATE products SET ? WHERE ?', [
+                            {stock_quantity: newStockQuantity},
+                            {item_id: customerChoice}],
+                            function(err,res) {
+                        })
+
+
+        }
+    })
+
   })
 }
